@@ -1,0 +1,345 @@
+{
+  "id": "@thibautrey/chatons-extension-coolify",
+  "name": "Coolify",
+  "version": "1.0.0",
+  "description": "Interact with your Coolify instance to manage applications, servers, databases, services, deployments, and projects.",
+  "icon": "icon.png",
+  "capabilities": [
+    "llm.tools",
+    "storage.kv"
+  ],
+  "apis": {
+    "exposes": [
+      { "name": "coolify.list_applications", "version": "1.0.0" },
+      { "name": "coolify.get_application", "version": "1.0.0" },
+      { "name": "coolify.start_application", "version": "1.0.0" },
+      { "name": "coolify.stop_application", "version": "1.0.0" },
+      { "name": "coolify.restart_application", "version": "1.0.0" },
+      { "name": "coolify.delete_application", "version": "1.0.0" },
+      { "name": "coolify.list_servers", "version": "1.0.0" },
+      { "name": "coolify.get_server", "version": "1.0.0" },
+      { "name": "coolify.get_server_resources", "version": "1.0.0" },
+      { "name": "coolify.get_server_domains", "version": "1.0.0" },
+      { "name": "coolify.validate_server", "version": "1.0.0" },
+      { "name": "coolify.list_databases", "version": "1.0.0" },
+      { "name": "coolify.get_database", "version": "1.0.0" },
+      { "name": "coolify.start_database", "version": "1.0.0" },
+      { "name": "coolify.stop_database", "version": "1.0.0" },
+      { "name": "coolify.restart_database", "version": "1.0.0" },
+      { "name": "coolify.list_services", "version": "1.0.0" },
+      { "name": "coolify.get_service", "version": "1.0.0" },
+      { "name": "coolify.start_service", "version": "1.0.0" },
+      { "name": "coolify.stop_service", "version": "1.0.0" },
+      { "name": "coolify.restart_service", "version": "1.0.0" },
+      { "name": "coolify.list_deployments", "version": "1.0.0" },
+      { "name": "coolify.get_deployment", "version": "1.0.0" },
+      { "name": "coolify.deploy", "version": "1.0.0" },
+      { "name": "coolify.list_projects", "version": "1.0.0" },
+      { "name": "coolify.get_project", "version": "1.0.0" },
+      { "name": "coolify.list_resources", "version": "1.0.0" },
+      { "name": "coolify.list_teams", "version": "1.0.0" },
+      { "name": "coolify.get_current_team", "version": "1.0.0" },
+      { "name": "coolify.healthcheck", "version": "1.0.0" },
+      { "name": "coolify.version", "version": "1.0.0" }
+    ]
+  },
+  "llm": {
+    "tools": [
+      {
+        "name": "coolify_list_applications",
+        "label": "List Coolify applications",
+        "description": "List all applications on your Coolify instance, optionally filtered by tag.",
+        "promptSnippet": "List Coolify applications.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "tag": { "type": "string", "description": "Filter applications by tag name." }
+          }
+        }
+      },
+      {
+        "name": "coolify_get_application",
+        "label": "Get Coolify application",
+        "description": "Get details of a specific Coolify application by its UUID.",
+        "promptSnippet": "Get details of a Coolify application.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "uuid": { "type": "string", "description": "Application UUID." }
+          },
+          "required": ["uuid"]
+        }
+      },
+      {
+        "name": "coolify_application_action",
+        "label": "Start/Stop/Restart Coolify application",
+        "description": "Start, stop, or restart a Coolify application by UUID.",
+        "promptSnippet": "Start, stop, or restart a Coolify application.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "uuid": { "type": "string", "description": "Application UUID." },
+            "action": { "type": "string", "enum": ["start", "stop", "restart"], "description": "Action to perform." }
+          },
+          "required": ["uuid", "action"]
+        }
+      },
+      {
+        "name": "coolify_delete_application",
+        "label": "Delete Coolify application",
+        "description": "Delete a Coolify application by UUID. Optionally remove associated resources.",
+        "promptSnippet": "Delete a Coolify application.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "uuid": { "type": "string", "description": "Application UUID." },
+            "delete_configurations": { "type": "boolean", "description": "Delete configurations." },
+            "delete_volumes": { "type": "boolean", "description": "Delete volumes." },
+            "docker_cleanup": { "type": "boolean", "description": "Run Docker cleanup." },
+            "delete_connected_networks": { "type": "boolean", "description": "Delete connected networks." }
+          },
+          "required": ["uuid"]
+        }
+      },
+      {
+        "name": "coolify_list_servers",
+        "label": "List Coolify servers",
+        "description": "List all servers configured in your Coolify instance.",
+        "promptSnippet": "List Coolify servers.",
+        "parameters": { "type": "object", "properties": {} }
+      },
+      {
+        "name": "coolify_get_server",
+        "label": "Get Coolify server",
+        "description": "Get details of a specific Coolify server by UUID.",
+        "promptSnippet": "Get Coolify server details.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "uuid": { "type": "string", "description": "Server UUID." }
+          },
+          "required": ["uuid"]
+        }
+      },
+      {
+        "name": "coolify_get_server_resources",
+        "label": "Get Coolify server resources",
+        "description": "List all resources (applications, databases, services) deployed on a specific server.",
+        "promptSnippet": "List resources on a Coolify server.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "uuid": { "type": "string", "description": "Server UUID." }
+          },
+          "required": ["uuid"]
+        }
+      },
+      {
+        "name": "coolify_get_server_domains",
+        "label": "Get Coolify server domains",
+        "description": "List all domains configured on a specific server.",
+        "promptSnippet": "List domains on a Coolify server.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "uuid": { "type": "string", "description": "Server UUID." }
+          },
+          "required": ["uuid"]
+        }
+      },
+      {
+        "name": "coolify_validate_server",
+        "label": "Validate Coolify server",
+        "description": "Validate a Coolify server connection by UUID.",
+        "promptSnippet": "Validate a Coolify server connection.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "uuid": { "type": "string", "description": "Server UUID." }
+          },
+          "required": ["uuid"]
+        }
+      },
+      {
+        "name": "coolify_list_databases",
+        "label": "List Coolify databases",
+        "description": "List all databases on your Coolify instance.",
+        "promptSnippet": "List Coolify databases.",
+        "parameters": { "type": "object", "properties": {} }
+      },
+      {
+        "name": "coolify_get_database",
+        "label": "Get Coolify database",
+        "description": "Get details of a specific Coolify database by UUID.",
+        "promptSnippet": "Get Coolify database details.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "uuid": { "type": "string", "description": "Database UUID." }
+          },
+          "required": ["uuid"]
+        }
+      },
+      {
+        "name": "coolify_database_action",
+        "label": "Start/Stop/Restart Coolify database",
+        "description": "Start, stop, or restart a Coolify database by UUID.",
+        "promptSnippet": "Start, stop, or restart a Coolify database.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "uuid": { "type": "string", "description": "Database UUID." },
+            "action": { "type": "string", "enum": ["start", "stop", "restart"], "description": "Action to perform." }
+          },
+          "required": ["uuid", "action"]
+        }
+      },
+      {
+        "name": "coolify_list_services",
+        "label": "List Coolify services",
+        "description": "List all services on your Coolify instance.",
+        "promptSnippet": "List Coolify services.",
+        "parameters": { "type": "object", "properties": {} }
+      },
+      {
+        "name": "coolify_get_service",
+        "label": "Get Coolify service",
+        "description": "Get details of a specific Coolify service by UUID.",
+        "promptSnippet": "Get Coolify service details.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "uuid": { "type": "string", "description": "Service UUID." }
+          },
+          "required": ["uuid"]
+        }
+      },
+      {
+        "name": "coolify_service_action",
+        "label": "Start/Stop/Restart Coolify service",
+        "description": "Start, stop, or restart a Coolify service by UUID.",
+        "promptSnippet": "Start, stop, or restart a Coolify service.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "uuid": { "type": "string", "description": "Service UUID." },
+            "action": { "type": "string", "enum": ["start", "stop", "restart"], "description": "Action to perform." }
+          },
+          "required": ["uuid", "action"]
+        }
+      },
+      {
+        "name": "coolify_list_deployments",
+        "label": "List Coolify deployments",
+        "description": "List deployments, optionally filtered by application UUID.",
+        "promptSnippet": "List Coolify deployments.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "uuid": { "type": "string", "description": "Application UUID to filter deployments." }
+          }
+        }
+      },
+      {
+        "name": "coolify_get_deployment",
+        "label": "Get Coolify deployment",
+        "description": "Get details of a specific deployment by UUID.",
+        "promptSnippet": "Get Coolify deployment details.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "uuid": { "type": "string", "description": "Deployment UUID." }
+          },
+          "required": ["uuid"]
+        }
+      },
+      {
+        "name": "coolify_deploy",
+        "label": "Deploy on Coolify",
+        "description": "Trigger a deployment by application UUID or tag. Optionally force rebuild.",
+        "promptSnippet": "Trigger a Coolify deployment.",
+        "promptGuidelines": [
+          "Use this tool to deploy or redeploy an application.",
+          "Provide either uuid or tag to identify what to deploy."
+        ],
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "uuid": { "type": "string", "description": "Application UUID to deploy." },
+            "tag": { "type": "string", "description": "Tag name to deploy all tagged resources." },
+            "force": { "type": "boolean", "description": "Force rebuild (default false)." }
+          }
+        }
+      },
+      {
+        "name": "coolify_list_projects",
+        "label": "List Coolify projects",
+        "description": "List all projects on your Coolify instance.",
+        "promptSnippet": "List Coolify projects.",
+        "parameters": { "type": "object", "properties": {} }
+      },
+      {
+        "name": "coolify_get_project",
+        "label": "Get Coolify project",
+        "description": "Get details of a specific Coolify project by UUID.",
+        "promptSnippet": "Get Coolify project details.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "uuid": { "type": "string", "description": "Project UUID." }
+          },
+          "required": ["uuid"]
+        }
+      },
+      {
+        "name": "coolify_list_resources",
+        "label": "List Coolify resources",
+        "description": "List all resources (applications, databases, services) across the Coolify instance.",
+        "promptSnippet": "List all Coolify resources.",
+        "parameters": { "type": "object", "properties": {} }
+      },
+      {
+        "name": "coolify_list_teams",
+        "label": "List Coolify teams",
+        "description": "List all teams on your Coolify instance.",
+        "promptSnippet": "List Coolify teams.",
+        "parameters": { "type": "object", "properties": {} }
+      },
+      {
+        "name": "coolify_get_current_team",
+        "label": "Get current Coolify team",
+        "description": "Get the currently authenticated team and its members.",
+        "promptSnippet": "Get current Coolify team info.",
+        "parameters": { "type": "object", "properties": {} }
+      },
+      {
+        "name": "coolify_healthcheck",
+        "label": "Coolify health check",
+        "description": "Check if your Coolify instance is healthy and reachable.",
+        "promptSnippet": "Check Coolify instance health.",
+        "parameters": { "type": "object", "properties": {} }
+      },
+      {
+        "name": "coolify_version",
+        "label": "Coolify version",
+        "description": "Get the version of your Coolify instance.",
+        "promptSnippet": "Get Coolify instance version.",
+        "parameters": { "type": "object", "properties": {} }
+      },
+      {
+        "name": "coolify_get_application_logs",
+        "label": "Get Coolify application logs",
+        "description": "Get logs of a Coolify application by UUID.",
+        "promptSnippet": "Get Coolify application logs.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "uuid": { "type": "string", "description": "Application UUID." },
+            "lines": { "type": "number", "description": "Number of log lines to return (default 100)." }
+          },
+          "required": ["uuid"]
+        }
+      }
+    ]
+  }
+}

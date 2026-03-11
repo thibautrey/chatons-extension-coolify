@@ -1,0 +1,12 @@
+{
+  "name": "@thibautrey/chatons-extension-coolify",
+  "version": "1.0.0",
+  "description": "Manage Coolify infrastructure directly from Chatons",
+  "keywords": ["coolify", "infrastructure", "deployment"],
+  "author": "thibautrey",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thibautrey/chatons-extension-coolify"
+  }
+}
